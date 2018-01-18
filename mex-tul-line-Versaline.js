@@ -265,7 +265,7 @@ client1.on('connect', function(err) {
         client1.readHoldingRegisters(0, 16).then(function(resp) {
           CntInFiller1 = joinWord(resp.register[0], resp.register[1]);
           CntInFiller2 = joinWord(resp.register[2], resp.register[3]);
-          CntInStickInserter = joinWord(resp.register[4], resp.register[5]);
+          CntInStickInserter = joinWord(resp.register[4], resp.register[5])*16;
           //------------------------------------------Filler1----------------------------------------------
                 Filler1ct = CntInFiller1 // NOTE: igualar al contador de salida
                 if (!Filler1ONS && Filler1ct) {
