@@ -311,7 +311,7 @@ client1.on('connect', function(err) {
                 }
                 Filler1results = {
                   ST: Filler1state,
-                  CPQI: CntInFiller1,
+                  CPQO: CntInFiller1,
                   SP: Filler1speed
                 }
                 if (Filler1flagPrint == 1) {
@@ -370,7 +370,7 @@ client1.on('connect', function(err) {
                 }
                 Filler2results = {
                   ST: Filler2state,
-                  CPQI: CntInFiller2,
+                  CPQO: CntInFiller2,
                   SP: Filler2speed
                 }
                 if (Filler2flagPrint == 1) {
@@ -429,7 +429,7 @@ client1.on('connect', function(err) {
                 }
                 StickInserterresults = {
                   ST: StickInserterstate,
-                  CPQI: CntInStickInserter,
+                  CPQO: CntInStickInserter,
                   SP: StickInserterspeed
                 }
                 if (StickInserterflagPrint == 1) {
@@ -457,8 +457,14 @@ client1.on('connect', function(err) {
     intId2 =
       setInterval(function(){
           client2.readHoldingRegisters(0, 16).then(function(resp) {
-            CntInPickAndPlace1 = joinWord(resp.register[0], resp.register[1]) + joinWord(resp.register[2], resp.register[3]) + joinWord(resp.register[4], resp.register[5])+joinWord(resp.register[6], resp.register[7]);
-            CntInPickAndPlace1 += joinWord(resp.register[8], resp.register[9]) + joinWord(resp.register[10], resp.register[11]) + joinWord(resp.register[12], resp.register[13]) + joinWord(resp.register[14], resp.register[15]);
+            CntInPickAndPlace1 = joinWord(resp.register[0], resp.register[1]) +
+                                 joinWord(resp.register[2], resp.register[3]) +
+                                 joinWord(resp.register[4], resp.register[5]) +
+                                 joinWord(resp.register[6], resp.register[7]) +
+                                 joinWord(resp.register[8], resp.register[9]) +
+                                 joinWord(resp.register[10], resp.register[11]) +
+                                 joinWord(resp.register[12], resp.register[13]) +
+                                 joinWord(resp.register[14], resp.register[15]);
           });//Cierre de lectura
         },1000);
     });//Cierre de cliente
@@ -473,68 +479,15 @@ client1.on('connect', function(err) {
       intId3 =
         setInterval(function(){
             client3.readHoldingRegisters(0, 16).then(function(resp) {
-              CntInPickAndPlace   = joinWord(resp.register[0], resp.register[1]) + joinWord(resp.register[2], resp.register[3]) + joinWord(resp.register[4], resp.register[5])+joinWord(resp.register[6], resp.register[7]);
-              CntInPickAndPlace   += joinWord(resp.register[8], resp.register[9]) + joinWord(resp.register[10], resp.register[11]) + joinWord(resp.register[12], resp.register[13])+joinWord(resp.register[14], resp.register[15]);
+              CntInPickAndPlace   = joinWord(resp.register[0], resp.register[1]) +
+                                    joinWord(resp.register[2], resp.register[3]) +
+                                    joinWord(resp.register[4], resp.register[5]) +
+                                    joinWord(resp.register[6], resp.register[7]) +
+                                    joinWord(resp.register[8], resp.register[9]) +
+                                    joinWord(resp.register[10], resp.register[11]) +
+                                    joinWord(resp.register[12], resp.register[13]) +
+                                    joinWord(resp.register[14], resp.register[15]);
               CntInPickAndPlace   += CntInPickAndPlace1;
-              //------------------------------------------PickAndPlace----------------------------------------------
-                    PickAndPlacect = CntInPickAndPlace // NOTE: igualar al contador de salida
-                    if (!PickAndPlaceONS && PickAndPlacect) {
-                      PickAndPlacespeedTemp = PickAndPlacect
-                      PickAndPlacesec = Date.now()
-                      PickAndPlaceONS = true
-                      PickAndPlacetime = Date.now()
-                    }
-                    if(PickAndPlacect > PickAndPlaceactual){
-                      if(PickAndPlaceflagStopped){
-                        PickAndPlacespeed = PickAndPlacect - PickAndPlacespeedTemp
-                        PickAndPlacespeedTemp = PickAndPlacect
-                        PickAndPlacesec = Date.now()
-                        PickAndPlacetime = Date.now()
-                      }
-                      PickAndPlacesecStop = 0
-                      PickAndPlacestate = 1
-                      PickAndPlaceflagStopped = false
-                      PickAndPlaceflagRunning = true
-                    } else if( PickAndPlacect == PickAndPlaceactual ){
-                      if(PickAndPlacesecStop == 0){
-                        PickAndPlacetime = Date.now()
-                        PickAndPlacesecStop = Date.now()
-                      }
-                      if( ( Date.now() - ( PickAndPlacetimeStop * 1000 ) ) >= PickAndPlacesecStop ){
-                        PickAndPlacespeed = 0
-                        PickAndPlacestate = 2
-                        PickAndPlacespeedTemp = PickAndPlacect
-                        PickAndPlaceflagStopped = true
-                        PickAndPlaceflagRunning = false
-                        PickAndPlaceflagPrint = 1
-                      }
-                    }
-                    PickAndPlaceactual = PickAndPlacect
-                    if(Date.now() - 60000 * PickAndPlaceWorktime >= PickAndPlacesec && PickAndPlacesecStop == 0){
-                      if(PickAndPlaceflagRunning && PickAndPlacect){
-                        PickAndPlaceflagPrint = 1
-                        PickAndPlacesecStop = 0
-                        PickAndPlacespeed = PickAndPlacect - PickAndPlacespeedTemp
-                        PickAndPlacespeedTemp = PickAndPlacect
-                        PickAndPlacesec = Date.now()
-                      }
-                    }
-                    PickAndPlaceresults = {
-                      ST: PickAndPlacestate,
-                      CPQI: CntInPickAndPlace,
-                      SP: PickAndPlacespeed
-                    }
-                    if (PickAndPlaceflagPrint == 1) {
-                      for (var key in PickAndPlaceresults) {
-                        if( PickAndPlaceresults[key] != null && ! isNaN(PickAndPlaceresults[key]) )
-                        //NOTE: Cambiar path
-                        fs.appendFileSync('C:/Pulse/VERSALINE_LOGS/mex_tul_PickAndPlace_Versaline.log', 'tt=' + PickAndPlacetime + ',var=' + key + ',val=' + PickAndPlaceresults[key] + '\n')
-                      }
-                      PickAndPlaceflagPrint = 0
-                      PickAndPlacesecStop = 0
-                      PickAndPlacetime = Date.now()
-                    }
-              //------------------------------------------PickAndPlace----------------------------------------------
 
             });//Cierre de lectura
           },1000);
@@ -550,67 +503,76 @@ client1.on('connect', function(err) {
         intId4 =
           setInterval(function(){
               client4.readHoldingRegisters(0, 16).then(function(resp) {
-                CntInWrapping =  joinWord(resp.register[0], resp.register[1]) + joinWord(resp.register[2], resp.register[3]) + joinWord(resp.register[4], resp.register[5])+joinWord(resp.register[6], resp.register[7]);
-                CntInWrapping += joinWord(resp.register[8], resp.register[9]) + joinWord(resp.register[10], resp.register[11]) + joinWord(resp.register[12], resp.register[13]) + joinWord(resp.register[14], resp.register[15]);
-                //------------------------------------------Wrapping----------------------------------------------
-                      Wrappingct = CntOutWrapping // NOTE: igualar al contador de salida
-                      if (!WrappingONS && Wrappingct) {
-                        WrappingspeedTemp = Wrappingct
-                        Wrappingsec = Date.now()
-                        WrappingONS = true
-                        Wrappingtime = Date.now()
+                CntInWrapping =  joinWord(resp.register[0], resp.register[1]) +
+                                 joinWord(resp.register[2], resp.register[3]) +
+                                 joinWord(resp.register[4], resp.register[5]) +
+                                 joinWord(resp.register[6], resp.register[7]) +
+                                 joinWord(resp.register[8], resp.register[9]) +
+                                 joinWord(resp.register[10], resp.register[11]) +
+                                 joinWord(resp.register[12], resp.register[13]) +
+                                 joinWord(resp.register[14], resp.register[15]);
+                CntOutPickAndPlace = CntInWrapping;
+                //------------------------------------------PickAndPlace----------------------------------------------
+                      PickAndPlacect = CntOutPickAndPlace // NOTE: igualar al contador de salida
+                      if (!PickAndPlaceONS && PickAndPlacect) {
+                        PickAndPlacespeedTemp = PickAndPlacect
+                        PickAndPlacesec = Date.now()
+                        PickAndPlaceONS = true
+                        PickAndPlacetime = Date.now()
                       }
-                      if(Wrappingct > Wrappingactual){
-                        if(WrappingflagStopped){
-                          Wrappingspeed = Wrappingct - WrappingspeedTemp
-                          WrappingspeedTemp = Wrappingct
-                          Wrappingsec = Date.now()
-                          Wrappingtime = Date.now()
+                      if(PickAndPlacect > PickAndPlaceactual){
+                        if(PickAndPlaceflagStopped){
+                          PickAndPlacespeed = PickAndPlacect - PickAndPlacespeedTemp
+                          PickAndPlacespeedTemp = PickAndPlacect
+                          PickAndPlacesec = Date.now()
+                          PickAndPlacetime = Date.now()
                         }
-                        WrappingsecStop = 0
-                        Wrappingstate = 1
-                        WrappingflagStopped = false
-                        WrappingflagRunning = true
-                      } else if( Wrappingct == Wrappingactual ){
-                        if(WrappingsecStop == 0){
-                          Wrappingtime = Date.now()
-                          WrappingsecStop = Date.now()
+                        PickAndPlacesecStop = 0
+                        PickAndPlacestate = 1
+                        PickAndPlaceflagStopped = false
+                        PickAndPlaceflagRunning = true
+                      } else if( PickAndPlacect == PickAndPlaceactual ){
+                        if(PickAndPlacesecStop == 0){
+                          PickAndPlacetime = Date.now()
+                          PickAndPlacesecStop = Date.now()
                         }
-                        if( ( Date.now() - ( WrappingtimeStop * 1000 ) ) >= WrappingsecStop ){
-                          Wrappingspeed = 0
-                          Wrappingstate = 2
-                          WrappingspeedTemp = Wrappingct
-                          WrappingflagStopped = true
-                          WrappingflagRunning = false
-                          WrappingflagPrint = 1
-                        }
-                      }
-                      Wrappingactual = Wrappingct
-                      if(Date.now() - 60000 * WrappingWorktime >= Wrappingsec && WrappingsecStop == 0){
-                        if(WrappingflagRunning && Wrappingct){
-                          WrappingflagPrint = 1
-                          WrappingsecStop = 0
-                          Wrappingspeed = Wrappingct - WrappingspeedTemp
-                          WrappingspeedTemp = Wrappingct
-                          Wrappingsec = Date.now()
+                        if( ( Date.now() - ( PickAndPlacetimeStop * 1000 ) ) >= PickAndPlacesecStop ){
+                          PickAndPlacespeed = 0
+                          PickAndPlacestate = 2
+                          PickAndPlacespeedTemp = PickAndPlacect
+                          PickAndPlaceflagStopped = true
+                          PickAndPlaceflagRunning = false
+                          PickAndPlaceflagPrint = 1
                         }
                       }
-                      Wrappingresults = {
-                        ST: Wrappingstate,
-                        CPQI: CntInWrapping,
-                        SP: Wrappingspeed
+                      PickAndPlaceactual = PickAndPlacect
+                      if(Date.now() - 60000 * PickAndPlaceWorktime >= PickAndPlacesec && PickAndPlacesecStop == 0){
+                        if(PickAndPlaceflagRunning && PickAndPlacect){
+                          PickAndPlaceflagPrint = 1
+                          PickAndPlacesecStop = 0
+                          PickAndPlacespeed = PickAndPlacect - PickAndPlacespeedTemp
+                          PickAndPlacespeedTemp = PickAndPlacect
+                          PickAndPlacesec = Date.now()
+                        }
                       }
-                      if (WrappingflagPrint == 1) {
-                        for (var key in Wrappingresults) {
-                          if( Wrappingresults[key] != null && ! isNaN(Wrappingresults[key]) )
+                      PickAndPlaceresults = {
+                        ST: PickAndPlacestate,
+                        CPQI: CntInPickAndPlace,
+                        CPQO: CntOutPickAndPlace,
+                        SP: PickAndPlacespeed
+                      }
+                      if (PickAndPlaceflagPrint == 1) {
+                        for (var key in PickAndPlaceresults) {
+                          if( PickAndPlaceresults[key] != null && ! isNaN(PickAndPlaceresults[key]) )
                           //NOTE: Cambiar path
-                          fs.appendFileSync('C:/Pulse/VERSALINE_LOGS/mex_tul_Wrapping_Versaline.log', 'tt=' + Wrappingtime + ',var=' + key + ',val=' + Wrappingresults[key] + '\n')
+                          fs.appendFileSync('C:/Pulse/VERSALINE_LOGS/mex_tul_PickAndPlace_Versaline.log', 'tt=' + PickAndPlacetime + ',var=' + key + ',val=' + PickAndPlaceresults[key] + '\n')
                         }
-                        WrappingflagPrint = 0
-                        WrappingsecStop = 0
-                        Wrappingtime = Date.now()
+                        PickAndPlaceflagPrint = 0
+                        PickAndPlacesecStop = 0
+                        PickAndPlacetime = Date.now()
                       }
-                //------------------------------------------Wrapping----------------------------------------------
+                //------------------------------------------PickAndPlace----------------------------------------------
+
               });//Cierre de lectura
             },1000);
         });//Cierre de cliente
@@ -630,8 +592,70 @@ client1.on('connect', function(err) {
                   CntOutEOL = CntOutCaseSealer;
                   CntOutBoxFormer =  joinWord(resp.register[8], resp.register[9]);
                   CntInCaseSealer =  joinWord(resp.register[10], resp.register[11]);
+                  CntOutCasePacker = CntInCaseSealer;
+                  CntOutWrapping = CntInCasePacker;
+                  //------------------------------------------Wrapping----------------------------------------------
+                        Wrappingct = CntOutWrapping // NOTE: igualar al contador de salida
+                        if (!WrappingONS && Wrappingct) {
+                          WrappingspeedTemp = Wrappingct
+                          Wrappingsec = Date.now()
+                          WrappingONS = true
+                          Wrappingtime = Date.now()
+                        }
+                        if(Wrappingct > Wrappingactual){
+                          if(WrappingflagStopped){
+                            Wrappingspeed = Wrappingct - WrappingspeedTemp
+                            WrappingspeedTemp = Wrappingct
+                            Wrappingsec = Date.now()
+                            Wrappingtime = Date.now()
+                          }
+                          WrappingsecStop = 0
+                          Wrappingstate = 1
+                          WrappingflagStopped = false
+                          WrappingflagRunning = true
+                        } else if( Wrappingct == Wrappingactual ){
+                          if(WrappingsecStop == 0){
+                            Wrappingtime = Date.now()
+                            WrappingsecStop = Date.now()
+                          }
+                          if( ( Date.now() - ( WrappingtimeStop * 1000 ) ) >= WrappingsecStop ){
+                            Wrappingspeed = 0
+                            Wrappingstate = 2
+                            WrappingspeedTemp = Wrappingct
+                            WrappingflagStopped = true
+                            WrappingflagRunning = false
+                            WrappingflagPrint = 1
+                          }
+                        }
+                        Wrappingactual = Wrappingct
+                        if(Date.now() - 60000 * WrappingWorktime >= Wrappingsec && WrappingsecStop == 0){
+                          if(WrappingflagRunning && Wrappingct){
+                            WrappingflagPrint = 1
+                            WrappingsecStop = 0
+                            Wrappingspeed = Wrappingct - WrappingspeedTemp
+                            WrappingspeedTemp = Wrappingct
+                            Wrappingsec = Date.now()
+                          }
+                        }
+                        Wrappingresults = {
+                          ST: Wrappingstate,
+                          CPQI: CntInWrapping,
+                          CPQO: CntOutWrapping,
+                          SP: Wrappingspeed
+                        }
+                        if (WrappingflagPrint == 1) {
+                          for (var key in Wrappingresults) {
+                            if( Wrappingresults[key] != null && ! isNaN(Wrappingresults[key]) )
+                            //NOTE: Cambiar path
+                            fs.appendFileSync('C:/Pulse/VERSALINE_LOGS/mex_tul_Wrapping_Versaline.log', 'tt=' + Wrappingtime + ',var=' + key + ',val=' + Wrappingresults[key] + '\n')
+                          }
+                          WrappingflagPrint = 0
+                          WrappingsecStop = 0
+                          Wrappingtime = Date.now()
+                        }
+                  //------------------------------------------Wrapping----------------------------------------------
                   //------------------------------------------CasePacker----------------------------------------------
-                        CasePackerct = CntInCasePacker // NOTE: igualar al contador de salida
+                        CasePackerct = CntOutCasePacker // NOTE: igualar al contador de salida
                         if (!CasePackerONS && CasePackerct) {
                           CasePackerspeedTemp = CasePackerct
                           CasePackersec = Date.now()
@@ -676,6 +700,7 @@ client1.on('connect', function(err) {
                         CasePackerresults = {
                           ST: CasePackerstate,
                           CPQI: CntInCasePacker,
+                          CPQO: CntOutCasePacker,
                           SP: CasePackerspeed
                         }
                         if (CasePackerflagPrint == 1) {
