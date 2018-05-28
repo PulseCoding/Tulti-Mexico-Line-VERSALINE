@@ -311,7 +311,7 @@ client1.on('connect', function(err) {
                 }
                 Filler1results = {
                   ST: Filler1state,
-                  CPQO: CntInFiller1,
+                  CPQO: CntInFiller1*16,
                   SP: Filler1speed
                 }
                 if (Filler1flagPrint == 1) {
@@ -370,7 +370,7 @@ client1.on('connect', function(err) {
                 }
                 Filler2results = {
                   ST: Filler2state,
-                  CPQO: CntInFiller2,
+                  CPQO: CntInFiller2*16,
                   SP: Filler2speed
                 }
                 if (Filler2flagPrint == 1) {
@@ -759,7 +759,7 @@ client1.on('connect', function(err) {
                         }
                         CaseSealerresults = {
                           ST: CaseSealerstate,
-                          CPQI: CntInCasePacker,
+                          CPQI: CntInCaseSealer,
                           CPQO: CntOutCaseSealer,
                           SP: CaseSealerspeed
                         }
