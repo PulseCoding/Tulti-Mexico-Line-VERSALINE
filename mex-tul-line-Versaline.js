@@ -71,7 +71,27 @@ try{
       PickAndPlaceONS = false,
       PickAndPlacetimeStop = 60, //NOTE: Timestop en segundos
       PickAndPlaceWorktime = 0.99, //NOTE: Intervalo de tiempo en minutos para actualizar el log
-      PickAndPlaceflagRunning = false;
+      PickAndPlaceflagRunning = false,
+      PickAndPlacedeltaRejected = null,
+      PickAndPlaceRejectFlag = false,
+      PickAndPlaceReject,
+      PickAndPlaceVerify = (function(){
+            try{
+              PickAndPlaceReject = fs.readFileSync('PickAndPlaceRejected.json')
+              if(PickAndPlaceReject.toString().indexOf('}') > 0 && PickAndPlaceReject.toString().indexOf('{\"rejected\":') != -1){
+                PickAndPlaceReject = JSON.parse(PickAndPlaceReject)
+              }else{
+                throw 12121212
+              }
+            }catch(err){
+              if(err.code == 'ENOENT' || err == 12121212){
+                fs.writeFileSync('PickAndPlaceRejected.json','{"rejected":0}') //NOTE: Change the object to what it usually is.
+                PickAndPlaceReject = {
+                  rejected : 0
+                }                 
+              }
+            }
+      })();
   var Wrappingct = null,
       Wrappingresults = null,
       CntInWrapping = null,
@@ -105,7 +125,27 @@ try{
       CasePackerONS = false,
       CasePackertimeStop = 60, //NOTE: Timestop en segundos
       CasePackerWorktime = 0.99, //NOTE: Intervalo de tiempo en minutos para actualizar el log
-      CasePackerflagRunning = false;
+      CasePackerflagRunning = false,
+      CasePackerdeltaRejected = null,
+      CasePackerRejectFlag = false,
+      CasePackerReject,
+      CasePackerVerify = (function(){
+            try{
+              CasePackerReject = fs.readFileSync('CasePackerRejected.json')
+              if(CasePackerReject.toString().indexOf('}') > 0 && CasePackerReject.toString().indexOf('{\"rejected\":') != -1){
+                CasePackerReject = JSON.parse(CasePackerReject)
+              }else{
+                throw 12121212
+              }
+            }catch(err){
+              if(err.code == 'ENOENT' || err == 12121212){
+                fs.writeFileSync('CasePackerRejected.json','{"rejected":0}') //NOTE: Change the object to what it usually is.
+                CasePackerReject = {
+                  rejected : 0
+                }                 
+              }
+            }
+      })();
   var CaseSealerct = null,
       CaseSealerresults = null,
       CntInCaseSealer = null,
@@ -122,7 +162,27 @@ try{
       CaseSealerONS = false,
       CaseSealertimeStop = 60, //NOTE: Timestop en segundos
       CaseSealerWorktime = 0.99, //NOTE: Intervalo de tiempo en minutos para actualizar el log
-      CaseSealerflagRunning = false;
+      CaseSealerflagRunning = false,
+      CaseSealerdeltaRejected = null,
+      CaseSealerRejectFlag = false,
+      CaseSealerReject,
+      CaseSealerVerify = (function(){
+            try{
+              CaseSealerReject = fs.readFileSync('CaseSealerRejected.json')
+              if(CaseSealerReject.toString().indexOf('}') > 0 && CaseSealerReject.toString().indexOf('{\"rejected\":') != -1){
+                CaseSealerReject = JSON.parse(CaseSealerReject)
+              }else{
+                throw 12121212
+              }
+            }catch(err){
+              if(err.code == 'ENOENT' || err == 12121212){
+                fs.writeFileSync('CaseSealerRejected.json','{"rejected":0}') //NOTE: Change the object to what it usually is.
+                CaseSealerReject = {
+                  rejected : 0
+                }                 
+              }
+            }
+      })();
   var BoxFormerct = null,
       BoxFormerresults = null,
       CntInBoxFormer = null,
@@ -525,6 +585,8 @@ client1.on('connect', function(err) {
                           PickAndPlacespeed = PickAndPlacect - PickAndPlacespeedTemp
                           PickAndPlacespeedTemp = PickAndPlacect
                           PickAndPlacesec = Date.now()
+                          PickAndPlacedeltaRejected = null
+                          PickAndPlaceRejectFlag = false
                           PickAndPlacetime = Date.now()
                         }
                         PickAndPlacesecStop = 0
@@ -542,6 +604,14 @@ client1.on('connect', function(err) {
                           PickAndPlacespeedTemp = PickAndPlacect
                           PickAndPlaceflagStopped = true
                           PickAndPlaceflagRunning = false
+                          if(CntInPickAndPlace - CntOutPickAndPlace - PickAndPlaceReject.rejected != 0 && ! PickAndPlaceRejectFlag){
+                            PickAndPlacedeltaRejected = CntInPickAndPlace - CntOutPickAndPlace - PickAndPlaceReject.rejected
+                            PickAndPlaceReject.rejected = CntInPickAndPlace - CntOutPickAndPlace
+                            fs.writeFileSync('PickAndPlaceRejected.json','{"rejected": ' + PickAndPlaceReject.rejected + '}')
+                            PickAndPlaceRejectFlag = true
+                          }else{
+                            PickAndPlacedeltaRejected = null
+                            }
                           PickAndPlaceflagPrint = 1
                         }
                       }
@@ -559,6 +629,7 @@ client1.on('connect', function(err) {
                         ST: PickAndPlacestate,
                         CPQI: CntInPickAndPlace,
                         CPQO: CntOutPickAndPlace,
+                        CPQR : PickAndPlacedeltaRejected,
                         SP: PickAndPlacespeed
                       }
                       if (PickAndPlaceflagPrint == 1) {
@@ -667,6 +738,8 @@ client1.on('connect', function(err) {
                             CasePackerspeed = CasePackerct - CasePackerspeedTemp
                             CasePackerspeedTemp = CasePackerct
                             CasePackersec = Date.now()
+                            CasePackerdeltaRejected = null
+                            CasePackerRejectFlag = false
                             CasePackertime = Date.now()
                           }
                           CasePackersecStop = 0
@@ -684,6 +757,14 @@ client1.on('connect', function(err) {
                             CasePackerspeedTemp = CasePackerct
                             CasePackerflagStopped = true
                             CasePackerflagRunning = false
+                            if(CntInCasePacker - CntOutCasePacker - CasePackerReject.rejected != 0 && ! CasePackerRejectFlag){
+                                CasePackerdeltaRejected = CntInCasePacker - CntOutCasePacker - CasePackerReject.rejected
+                                CasePackerReject.rejected = CntInCasePacker - CntOutCasePacker
+                                fs.writeFileSync('CasePackerRejected.json','{"rejected": ' + CasePackerReject.rejected + '}')
+                                CasePackerRejectFlag = true
+                              }else{
+                                CasePackerdeltaRejected = null
+                                    }
                             CasePackerflagPrint = 1
                           }
                         }
@@ -701,6 +782,7 @@ client1.on('connect', function(err) {
                           ST: CasePackerstate,
                           CPQI: CntInCasePacker,
                           CPQO: CntOutCasePacker,
+                          CPQR : CasePackerdeltaRejected,
                           SP: CasePackerspeed
                         }
                         if (CasePackerflagPrint == 1) {
@@ -727,6 +809,8 @@ client1.on('connect', function(err) {
                             CaseSealerspeed = CaseSealerct - CaseSealerspeedTemp
                             CaseSealerspeedTemp = CaseSealerct
                             CaseSealersec = Date.now()
+                            CaseSealerdeltaRejected = null
+                            CaseSealerRejectFlag = false
                             CaseSealertime = Date.now()
                           }
                           CaseSealersecStop = 0
@@ -744,6 +828,14 @@ client1.on('connect', function(err) {
                             CaseSealerspeedTemp = CaseSealerct
                             CaseSealerflagStopped = true
                             CaseSealerflagRunning = false
+                            if(CntInCaseSealer - CntOutCaseSealer - CaseSealerReject.rejected != 0 && ! CaseSealerRejectFlag){
+                                CaseSealerdeltaRejected = CntInCaseSealer - CntOutCaseSealer - CaseSealerReject.rejected
+                                CaseSealerReject.rejected = CntInCaseSealer - CntOutCaseSealer
+                                fs.writeFileSync('CaseSealerRejected.json','{"rejected": ' + CaseSealerReject.rejected + '}')
+                                CaseSealerRejectFlag = true
+                              }else{
+                                CaseSealerdeltaRejected = null
+                                  }
                             CaseSealerflagPrint = 1
                           }
                         }
@@ -761,6 +853,7 @@ client1.on('connect', function(err) {
                           ST: CaseSealerstate,
                           CPQI: CntInCaseSealer,
                           CPQO: CntOutCaseSealer,
+                          CPQR : CaseSealerdeltaRejected,
                           SP: CaseSealerspeed
                         }
                         if (CaseSealerflagPrint == 1) {
