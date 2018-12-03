@@ -323,8 +323,8 @@ client1.on('connect', function(err) {
   intId1 =
     setInterval(function(){
         client1.readHoldingRegisters(0, 16).then(function(resp) {
-          CntInFiller1 = joinWord(resp.register[0], resp.register[1]);
-          CntInFiller2 = joinWord(resp.register[2], resp.register[3]);
+          CntInFiller1 = joinWord(resp.register[0], resp.register[1])*16;
+          CntInFiller2 = joinWord(resp.register[2], resp.register[3])*16;
           CntInStickInserter = joinWord(resp.register[4], resp.register[5])*16;
           //------------------------------------------Filler1----------------------------------------------
                 Filler1ct = CntInFiller1 // NOTE: igualar al contador de salida
@@ -371,7 +371,7 @@ client1.on('connect', function(err) {
                 }
                 Filler1results = {
                   ST: Filler1state,
-                  CPQO: CntInFiller1*16,
+                  CPQO: CntInFiller1,
                   SP: Filler1speed
                 }
                 if (Filler1flagPrint == 1) {
@@ -430,7 +430,7 @@ client1.on('connect', function(err) {
                 }
                 Filler2results = {
                   ST: Filler2state,
-                  CPQO: CntInFiller2*16,
+                  CPQO: CntInFiller2,
                   SP: Filler2speed
                 }
                 if (Filler2flagPrint == 1) {
