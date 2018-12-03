@@ -627,7 +627,7 @@ client1.on('connect', function(err) {
                       }
                       PickAndPlaceresults = {
                         ST: PickAndPlacestate,
-                        CPQI: CntInPickAndPlace,
+                        CPQI: CntOutPickAndPlace,
                         CPQO: CntOutPickAndPlace,
                         CPQR : PickAndPlacedeltaRejected,
                         SP: PickAndPlacespeed
