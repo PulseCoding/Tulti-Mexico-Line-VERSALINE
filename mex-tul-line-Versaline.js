@@ -386,7 +386,7 @@ client1.on('connect', function(err) {
                 }
           //------------------------------------------Filler1----------------------------------------------
           //------------------------------------------Filler2----------------------------------------------
-                Filler2ct = CntOutFiller2 // NOTE: igualar al contador de salida
+                Filler2ct = CntInFiller2 // NOTE: igualar al contador de salida
                 if (!Filler2ONS && Filler2ct) {
                   Filler2speedTemp = Filler2ct
                   Filler2sec = Date.now()
